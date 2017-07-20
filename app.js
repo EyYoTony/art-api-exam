@@ -92,4 +92,10 @@ app.get('/art/paintings', function(req, res, next) {
   })
 })
 
+app.use(function(err, req, res, next) {
+  console.log(req.method, req.path, err)
+  res.status(err.status || 500)
+  res.send(err)
+})
+
 app.listen(port, () => console.log('API is running on this port: ', port))
