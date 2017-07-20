@@ -17,7 +17,9 @@ const listPaintings = (limit, lastItem, filter, cb) => {
     const filterValue = isNaN(Number(last(arrFilter)))
       ? last(arrFilter)
       : Number(last(arrFilter))
-    const selectorValue = assoc(filterField, filterValue, {})
+    const selectorValue = arrFilter.length === 3
+      ? assoc(filterField, assoc('$' + arrFilter[1], filterValue, {}), {})
+      : assoc(filterField, filterValue, {})
     query = { selector: selectorValue, limit }
   } else if (lastItem) {
     query = { selector: { _id: { $gt: lastItem }, type: 'painting' }, limit }
