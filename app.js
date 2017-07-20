@@ -4,8 +4,17 @@ const app = express()
 const dal = require('./dal.js')
 const HTTPError = require('node-http-error')
 const bodyParser = require('body-parser')
+const checkRequiredFields = require('./lib/check-required-fields')
 const port = process.env.PORT || 5000
 const { pathOr, keys } = require('ramda')
+
+const paintingReqFields = checkRequiredFields([
+  'name',
+  'movement',
+  'artist',
+  'yearCreated',
+  'museum'
+])
 
 app.use(bodyParser.json())
 
@@ -20,7 +29,18 @@ app.get('/', function(req, res, next) {
 // CREATE - POST /art/paintings
 app.post('/art/paintings', function(req, res, next) {
   const body = pathOr(null, ['body'], req)
-  console.log(body)
+  const checkResults = paintingReqFields(body)
+
+  if (checkResults.length > 0) {
+    return next(
+      new HTTPError(
+        400,
+        'Missing required fields in the request body.',
+        checkResults
+      )
+    )
+  }
+
   dal.createPainting(body, function(err, result) {
     if (err) return next(new HTTPError(err.status, err.message, err))
     res.status(201).send(result)
@@ -63,8 +83,10 @@ app.delete('/art/paintings/:id', function(req, res, next) {
 // LIST - GET /art/paintings
 app.get('/art/paintings', function(req, res, next) {
   const limit = pathOr(5, ['query', 'limit'], req)
+  const lastItem = pathOr(null, ['query', 'lastItem'], req)
+  const filter = pathOr(null, ['query', 'filter'], req)
 
-  dal.listPaintings(Number(limit), function(err, data) {
+  dal.listPaintings(Number(limit), lastItem, filter, function(err, data) {
     if (err) return next(new HTTPError(err.status, err.message, err))
     res.status(200).send(data)
   })

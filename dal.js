@@ -3,16 +3,28 @@ const PouchDB = require('pouchdb')
 PouchDB.plugin(require('pouchdb-find'))
 const db = new PouchDB(process.env.COUCHDB_URL + process.env.COUCHDB_NAME)
 const paintingPKGenerator = require('./lib/build-primary-key')
-const { assoc, pathOr } = require('ramda')
+const { assoc, pathOr, split, last, head } = require('ramda')
 
 ////////////////////
 //  Paintings
 ////////////////////
 
-const listPaintings = (limit, cb) => {
+const listPaintings = (limit, lastItem, filter, cb) => {
   var query = {}
-  //todo - query conditionals
-  query = { selector: { type: 'painting' }, limit }
+  if (filter) {
+    const arrFilter = split(':', filter)
+    const filterField = head(arrFilter)
+    const filterValue = isNaN(Number(last(arrFilter)))
+      ? last(arrFilter)
+      : Number(last(arrFilter))
+    const selectorValue = assoc(filterField, filterValue, {})
+    query = { selector: selectorValue, limit }
+  } else if (lastItem) {
+    query = { selector: { _id: { $gt: lastItem }, type: 'painting' }, limit }
+  } else {
+    query = { selector: { _id: { $gte: null }, type: 'painting' }, limit }
+  }
+
   find(query, function(err, data) {
     if (err) return cb(err)
     cb(null, data.docs)
@@ -37,7 +49,7 @@ const createPainting = (painting, cb) => {
 
 const updatePainting = (painting, cb) => {
   painting = assoc('type', 'painting', painting)
-  createDoc(painting, callback)
+  createDoc(painting, cb)
 }
 
 const deletePainting = (id, cb) => {
