@@ -43,23 +43,20 @@ ADD CONSTRAINT `FK_Painting_Movement`
   ON DELETE RESTRICT
   ON UPDATE CASCADE;
 
-DROP TABLE IF EXISTS `vcountbycity`;
-CREATE OR REPLACE VIEW `vcountbycity` AS
-SELECT `p`.`museumLocation` AS `city`, COUNT(`p`.`museumLocation`) AS `paintingCount`
-FROM `painting` `p`
-GROUP BY `p`.`museumLocation`;
 
-DROP TABLE IF EXISTS `vpaintingswithmovement`;
+/*for some reason it doesn't like quotes */
+
 CREATE OR REPLACE VIEW `vpaintingswithmovement` AS
-SELECT 'p'.'ID', 'p'.'name', 'p'.'artist','p'.'yearCreated', 'p'.'museumName', 'p'.'museumLocation', 'b'.'name' AS 'movement'
-FROM 'art'.'painting' 'p'
-JOIN 'art'.'movement' 'b' ON 'b'.'ID' = 'p'.'movementId';
+SELECT p.ID, p.name, p.artist,p.yearCreated, p.museumName, p.museumLocation, m.name AS movement
+FROM art.painting p
+JOIN art.movement m ON m.ID = p.movementId;
 
+CREATE OR REPLACE VIEW `vcountbycity` AS
+SELECT p.museumLocation AS city, COUNT(p.museumLocation) AS paintingCount
+FROM painting p
+GROUP BY p.museumLocation;
 
-DROP TABLE IF EXISTS `vcountbymovement`;
-/*
 CREATE OR REPLACE VIEW `vcountbymovement` AS
-SELECT `p`.`movement` AS `city`, COUNT(`p`.`movement`) AS `paintingCount`
-FROM `painting` `p`
-GROUP BY `p`.`movement`;
-*/
+SELECT p.movement , COUNT(p.movement) AS paintingCount
+FROM art.vpaintingswithmovement p
+GROUP BY p.movement;
