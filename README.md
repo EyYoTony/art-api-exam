@@ -22,8 +22,15 @@
   > PORT=(default port) </br>
 
 ### Load data
-  There is a **load-data.js** file to help you fill your db with example data </br>
+  There is a **load-data.js** file to help you fill your couch db with example data </br>
   You can run this file by either using the `npm run load` or `node load-data.js` commands
+
+  There is a **art.sql** file in the sql-scripts folder which will make and fill a SQL database </br>
+  You can run this file by using the following commands:
+  > cd sql-scripts </br>
+  > $ mysql < art.sql -u root -p -h 127.0.0.1 -P 3306
+
+  If you used Docker to install mySQL the host defaults to 0.0.0.0
 
 ### Load indexes
   To load indexes into your pouchdb, run the `load-indexes.js` file. </br> You can either use the `npm run loadIndex` or `node load-indexes.js` commands
