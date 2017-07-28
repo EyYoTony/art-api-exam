@@ -1,7 +1,7 @@
 require('dotenv').config()
 const express = require('express')
 const app = express()
-const dal = require('./dal.js')
+const dal = require(`./${process.env.DAL}`)
 const HTTPError = require('node-http-error')
 const bodyParser = require('body-parser')
 const checkRequiredFields = require('./lib/check-required-fields')
@@ -30,7 +30,6 @@ app.get('/', function(req, res, next) {
 app.post('/art/paintings', function(req, res, next) {
   const body = pathOr(null, ['body'], req)
   const checkResults = paintingReqFields(body)
-
   if (checkResults.length > 0) {
     return next(
       new HTTPError(
@@ -59,12 +58,13 @@ app.get('/art/paintings/:id', function(req, res, next) {
 
 // UPDATE - PUT /art/paintings/:id
 app.put('/art/paintings/:id', function(req, res, next) {
+  const paintingId = pathOr(null, ['params', 'id'], req)
   const body = pathOr(null, ['body'], req)
 
   if (!body || keys(body).length === 0)
     return next(new HTTPError(400, 'Missing data in request body.'))
 
-  dal.updatePainting(body, function(err, result) {
+  dal.updatePainting(body, paintingId, function(err, result) {
     if (err) return next(new HTTPError(err.status, err.message, err))
     res.status(200).send(result)
   })

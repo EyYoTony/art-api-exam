@@ -49,7 +49,7 @@ const createPainting = (painting, cb) => {
   createDoc(painting, cb)
 }
 
-const updatePainting = (painting, cb) => {
+const updatePainting = (painting, paintingId, cb) => {
   painting = assoc('type', 'painting', painting)
   createDoc(painting, cb)
 }
