@@ -86,6 +86,7 @@ const returnSelf = data => data
 
 const prepPaintingSQLCreate = data =>
   compose(
+    omit('_id'),
     omit('museum'),
     omit('type'),
     omit('movement'),

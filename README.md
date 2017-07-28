@@ -20,6 +20,10 @@
   > COUCHDB_URL=(DB url) </br>
   > COUCHDB_NAME=(DB name) </br>
   > PORT=(default port) </br>
+  > MYSQL_HOST=(mysql DB host, defaults: 0.0.0.0 or 127.0.0.1)
+  > MYSQL_USER=(mysql DB name)
+  > MYSQL_PASSWORD=(mysql DB password)
+  > MYSQL_DATABASE=(mysql DB name)
 
 ### Load data
   There is a **load-data.js** file to help you fill your couch db with example data </br>
@@ -33,7 +37,6 @@
   If you used Docker to install mySQL the host defaults to 0.0.0.0
 
 ### Load indexes
-  To load indexes into your pouchdb, run the `load-indexes.js` file. </br> You can either use the `npm run loadIndex` or `node load-indexes.js` commands
-
+  To load indexes into your pouchdb, run the `load-indexes.js` file. </br> You can either use the `npm run loadIndex` or `node load-indexes.js` commands </br> **art.sql** will already load indexes into your mySQL DB.
 ### Start the API
   Finally to start the API, run the `npm start` command
