@@ -103,6 +103,13 @@ app.get('/art/reports/countbycity', function(req, res, next) {
   })
 })
 
+app.get('/art/reports/countbymovement', function(req, res, next) {
+  dal.getReportCBM(function(err, data) {
+    if (err) return next(new HTTPError(err.status, err.message, err))
+    res.status(200).send(data)
+  })
+})
+
 app.use(function(err, req, res, next) {
   console.log(req.method, req.path, err)
   res.status(err.status || 500)

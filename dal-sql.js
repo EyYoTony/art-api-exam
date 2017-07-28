@@ -8,12 +8,12 @@ const { assoc, prop, compose, omit, pathOr } = require('ramda')
 //////////////////////
 
 const createPainting = (painting, callback) => {
-  dalHelper.create('painting', painting, prepSQLCreate, callback)
+  dalHelper.create('vpaintingswithmovement', painting, prepSQLCreate, callback)
 }
 
 const getPainting = (paintingId, callback) => {
   dalHelper.read(
-    'painting',
+    'vpaintingswithmovement',
     'ID',
     paintingId,
     formatSQLtoCouch('painting'),
@@ -22,16 +22,22 @@ const getPainting = (paintingId, callback) => {
 }
 
 const updatePainting = (painting, id, callback) => {
-  dalHelper.update('painting', 'ID', prepSQLUpdate(painting), id, callback)
+  dalHelper.update(
+    'vpaintingswithmovement',
+    'ID',
+    prepSQLUpdate(painting),
+    id,
+    callback
+  )
 }
 
 const deletePainting = (paintingId, callback) => {
-  dalHelper.deleteRow('painting', 'ID', paintingId, callback)
+  dalHelper.deleteRow('vpaintingswithmovement', 'ID', paintingId, callback)
 }
 
 const listPaintings = (limit, lastItem, filter, callback) => {
   dalHelper.queryDB(
-    'painting',
+    'vpaintingswithmovement',
     lastItem,
     filter,
     limit,
@@ -90,6 +96,17 @@ const getReportCBC = callback => {
   })
 }
 
+const getReportCBM = callback => {
+  const connection = createConnection()
+  connection.query(`SELECT * FROM art.vcountbymovement`, function(err, result) {
+    if (err) return callback(err)
+    return callback(null, {
+      reportName: 'Painting count by movement',
+      reportData: result
+    })
+  })
+}
+
 const createConnection = () => {
   return mysql.createConnection({
     user: process.env.MYSQL_USER,
@@ -109,7 +126,8 @@ const dal = {
   updatePainting,
   deletePainting,
   listPaintings,
-  getReportCBC
+  getReportCBC,
+  getReportCBM
 }
 
 module.exports = dal
