@@ -62,13 +62,42 @@ const prepSQLUpdate = data =>
     omit('_rev'),
     omit('type')
   )(data)
-const formatSQLtoCouch = type => data =>
-  compose(
+const formatSQLtoCouch = type => data => {
+  const museum = { name: data['museumName'], location: data['museumLocation'] }
+  const compObj = compose(
     omit('ID'),
+    omit('museumName'),
+    omit('museumLocation'),
     assoc('_id', data['ID']),
     assoc('_rev', null),
     assoc('type', type)
   )(data)
+  return assoc('museum', museum, compObj)
+}
+
+//////////////////////
+//     REPORTS
+//////////////////////
+
+const getReportCBC = callback => {
+  const connection = createConnection()
+  connection.query(`SELECT * FROM art.vcountbycity`, function(err, result) {
+    if (err) return callback(err)
+    return callback(null, {
+      reportName: 'Painting count by city',
+      reportData: result
+    })
+  })
+}
+
+const createConnection = () => {
+  return mysql.createConnection({
+    user: process.env.MYSQL_USER,
+    host: process.env.MYSQL_HOST,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE
+  })
+}
 
 //////////////////////
 //     EXPORT
@@ -79,7 +108,8 @@ const dal = {
   getPainting,
   updatePainting,
   deletePainting,
-  listPaintings
+  listPaintings,
+  getReportCBC
 }
 
 module.exports = dal

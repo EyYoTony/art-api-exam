@@ -23,7 +23,7 @@ app.get('/', function(req, res, next) {
 })
 
 ////////////////////
-//  Paintings
+//   PAINTINGS
 ////////////////////
 
 // CREATE - POST /art/paintings
@@ -87,6 +87,17 @@ app.get('/art/paintings', function(req, res, next) {
   const filter = pathOr(null, ['query', 'filter'], req)
 
   dal.listPaintings(Number(limit), lastItem, filter, function(err, data) {
+    if (err) return next(new HTTPError(err.status, err.message, err))
+    res.status(200).send(data)
+  })
+})
+
+////////////////////
+//    REPORTS
+////////////////////
+
+app.get('/art/reports/countbycity', function(req, res, next) {
+  dal.getReportCBC(function(err, data) {
     if (err) return next(new HTTPError(err.status, err.message, err))
     res.status(200).send(data)
   })
