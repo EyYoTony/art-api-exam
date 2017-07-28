@@ -8,12 +8,12 @@ const { assoc, prop, compose, omit, pathOr } = require('ramda')
 //////////////////////
 
 const createPainting = (painting, callback) => {
-  dalHelper.create('vpaintingswithmovement', painting, prepSQLCreate, callback)
+  dalHelper.create('painting', painting, prepSQLCreate, callback)
 }
 
 const getPainting = (paintingId, callback) => {
   dalHelper.read(
-    'vpaintingswithmovement',
+    'painting',
     'ID',
     paintingId,
     formatSQLtoCouch('painting'),
@@ -22,22 +22,16 @@ const getPainting = (paintingId, callback) => {
 }
 
 const updatePainting = (painting, id, callback) => {
-  dalHelper.update(
-    'vpaintingswithmovement',
-    'ID',
-    prepSQLUpdate(painting),
-    id,
-    callback
-  )
+  dalHelper.update('painting', 'ID', prepSQLUpdate(painting), id, callback)
 }
 
 const deletePainting = (paintingId, callback) => {
-  dalHelper.deleteRow('vpaintingswithmovement', 'ID', paintingId, callback)
+  dalHelper.deleteRow('painting', 'ID', paintingId, callback)
 }
 
 const listPaintings = (limit, lastItem, filter, callback) => {
   dalHelper.queryDB(
-    'vpaintingswithmovement',
+    'painting',
     lastItem,
     filter,
     limit,
@@ -54,19 +48,23 @@ const listPaintings = (limit, lastItem, filter, callback) => {
 const prepSQLCreate = data =>
   compose(
     omit('museum'),
+    omit('type'),
+    omit('movement'),
     x => assoc('museumLocation', pathOr('N/A', ['museum', 'location'], x), x),
     x => assoc('museumName', pathOr('N/A', ['museum', 'name'], x), x),
-    omit('type')
+    x => assoc('movementId', x['movement'], x)
   )(data)
 const prepSQLUpdate = data =>
   compose(
+    omit('_id'),
+    omit('_rev'),
+    omit('type'),
+    omit('movement'),
     omit('museum'),
     x => assoc('museumLocation', pathOr('N/A', ['museum', 'location'], x), x),
     x => assoc('museumName', pathOr('N/A', ['museum', 'name'], x), x),
-    omit('_id'),
-    assoc('ID', data['_id']),
-    omit('_rev'),
-    omit('type')
+    x => assoc('movementId', x['movement'], x),
+    assoc('ID', data['_id'])
   )(data)
 const formatSQLtoCouch = type => data => {
   const museum = { name: data['museumName'], location: data['museumLocation'] }

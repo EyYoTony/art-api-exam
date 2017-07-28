@@ -15,6 +15,7 @@ const paintingReqFields = checkRequiredFields([
   'yearCreated',
   'museum'
 ])
+const movementReqFields = checkRequiredFields(['name', 'desc'])
 
 app.use(bodyParser.json())
 
@@ -87,6 +88,76 @@ app.get('/art/paintings', function(req, res, next) {
   const filter = pathOr(null, ['query', 'filter'], req)
 
   dal.listPaintings(Number(limit), lastItem, filter, function(err, data) {
+    if (err) return next(new HTTPError(err.status, err.message, err))
+    res.status(200).send(data)
+  })
+})
+
+////////////////////
+//    MOVEMENT
+////////////////////
+
+// CREATE - POST /art/movements
+app.post('/art/movements', function(req, res, next) {
+  const body = pathOr(null, ['body'], req)
+  const checkResults = movementReqFields(body)
+  if (checkResults.length > 0) {
+    return next(
+      new HTTPError(
+        400,
+        'Missing required fields in the request body.',
+        checkResults
+      )
+    )
+  }
+
+  dal.createMovement(body, function(err, result) {
+    if (err) return next(new HTTPError(err.status, err.message, err))
+    res.status(201).send(result)
+  })
+})
+
+// READ - GET /art/movements/:id
+app.get('/art/movements/:id', function(req, res, next) {
+  const movementId = pathOr(null, ['params', 'id'], req)
+
+  dal.getMovement(movementId, function(err, response) {
+    if (err) return next(new HTTPError(err.status, err.message, err))
+    res.status(200).send(response)
+  })
+})
+
+// UPDATE - PUT /art/movements/:id
+app.put('/art/movements/:id', function(req, res, next) {
+  const movementId = pathOr(null, ['params', 'id'], req)
+  const body = pathOr(null, ['body'], req)
+
+  if (!body || keys(body).length === 0)
+    return next(new HTTPError(400, 'Missing data in request body.'))
+
+  dal.updateMovement(body, paintingId, function(err, result) {
+    if (err) return next(new HTTPError(err.status, err.message, err))
+    res.status(200).send(result)
+  })
+})
+
+// DELETE - DELETE /art/movements/:id
+app.delete('/art/movements/:id', function(req, res, next) {
+  const movementId = pathOr(null, ['params', 'id'], req)
+
+  dal.deleteMovement(movementId, function(err, response) {
+    if (err) return next(new HTTPError(err.status, err.message, err))
+    res.status(200).send(response)
+  })
+})
+
+// LIST - GET /art/movements
+app.get('/art/movements', function(req, res, next) {
+  const limit = pathOr(5, ['query', 'limit'], req)
+  const lastItem = pathOr(null, ['query', 'lastItem'], req)
+  const filter = pathOr(null, ['query', 'filter'], req)
+
+  dal.listMovements(Number(limit), lastItem, filter, function(err, data) {
     if (err) return next(new HTTPError(err.status, err.message, err))
     res.status(200).send(data)
   })
