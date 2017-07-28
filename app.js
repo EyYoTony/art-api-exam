@@ -135,7 +135,7 @@ app.put('/art/movements/:id', function(req, res, next) {
   if (!body || keys(body).length === 0)
     return next(new HTTPError(400, 'Missing data in request body.'))
 
-  dal.updateMovement(body, paintingId, function(err, result) {
+  dal.updateMovement(body, movementId, function(err, result) {
     if (err) return next(new HTTPError(err.status, err.message, err))
     res.status(200).send(result)
   })

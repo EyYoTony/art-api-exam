@@ -8,7 +8,7 @@ const { assoc, prop, compose, omit, pathOr } = require('ramda')
 //////////////////////
 
 const createPainting = (painting, callback) => {
-  dalHelper.create('painting', painting, prepSQLCreate, callback)
+  dalHelper.create('painting', painting, prepPaintingSQLCreate, callback)
 }
 
 const getPainting = (paintingId, callback) => {
@@ -16,13 +16,19 @@ const getPainting = (paintingId, callback) => {
     'painting',
     'ID',
     paintingId,
-    formatSQLtoCouch('painting'),
+    formatPaintingSQLtoCouch('painting'),
     callback
   )
 }
 
 const updatePainting = (painting, id, callback) => {
-  dalHelper.update('painting', 'ID', prepSQLUpdate(painting), id, callback)
+  dalHelper.update(
+    'painting',
+    'ID',
+    prepPaintingSQLUpdate(painting),
+    id,
+    callback
+  )
 }
 
 const deletePainting = (paintingId, callback) => {
@@ -35,7 +41,39 @@ const listPaintings = (limit, lastItem, filter, callback) => {
     lastItem,
     filter,
     limit,
-    formatSQLtoCouch('painting'),
+    formatPaintingSQLtoCouch('painting'),
+    'ID',
+    callback
+  )
+}
+
+//////////////////////
+//     MOVEMENTS
+//////////////////////
+
+const createMovement = (movement, callback) => {
+  dalHelper.create('movement', movement, returnSelf, callback)
+}
+
+const getMovement = (movementId, callback) => {
+  dalHelper.read('movement', 'ID', movementId, returnSelf, callback)
+}
+
+const updateMovement = (movement, id, callback) => {
+  dalHelper.update('movement', 'ID', movement, id, callback)
+}
+
+const deleteMovement = (movementId, callback) => {
+  dalHelper.deleteRow('movement', 'ID', movementId, callback)
+}
+
+const listMovements = (limit, lastItem, filter, callback) => {
+  dalHelper.queryDB(
+    'movement',
+    lastItem,
+    filter,
+    limit,
+    returnSelf,
     'ID',
     callback
   )
@@ -44,8 +82,9 @@ const listPaintings = (limit, lastItem, filter, callback) => {
 //////////////////////
 //    FORMATTERS
 //////////////////////
+const returnSelf = data => data
 
-const prepSQLCreate = data =>
+const prepPaintingSQLCreate = data =>
   compose(
     omit('museum'),
     omit('type'),
@@ -54,7 +93,7 @@ const prepSQLCreate = data =>
     x => assoc('museumName', pathOr('N/A', ['museum', 'name'], x), x),
     x => assoc('movementId', x['movement'], x)
   )(data)
-const prepSQLUpdate = data =>
+const prepPaintingSQLUpdate = data =>
   compose(
     omit('_id'),
     omit('_rev'),
@@ -66,7 +105,7 @@ const prepSQLUpdate = data =>
     x => assoc('movementId', x['movement'], x),
     assoc('ID', data['_id'])
   )(data)
-const formatSQLtoCouch = type => data => {
+const formatPaintingSQLtoCouch = type => data => {
   const museum = { name: data['museumName'], location: data['museumLocation'] }
   const compObj = compose(
     omit('ID'),
@@ -124,6 +163,11 @@ const dal = {
   updatePainting,
   deletePainting,
   listPaintings,
+  createMovement,
+  getMovement,
+  updateMovement,
+  deleteMovement,
+  listMovements,
   getReportCBC,
   getReportCBM
 }

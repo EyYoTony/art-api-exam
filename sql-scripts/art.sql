@@ -34,9 +34,9 @@ INSERT INTO `painting` VALUES
 (3,'The Last Supper',3,'Leonardo da Vinci',1495,'Santa Maria delle Grazie','Milan'),
 (4,'Mona Lisa',3,'Leonardo da Vinci',1503,'Museum of Modern Art','New York');
 
-ALTER TABLE `art`.`painting`
+ALTER TABLE `painting`
 ADD INDEX `FK_Painting_Movement_idx` (`movementId` ASC);
-ALTER TABLE `art`.`painting`
+ALTER TABLE `painting`
 ADD CONSTRAINT `FK_Painting_Movement`
   FOREIGN KEY (`movementId`)
   REFERENCES `art`.`movement` (`ID`)
